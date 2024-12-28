@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index141 - Adivinanzas</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: linear-gradient(to bottom right, #a8d0e6, #f76c6c);
+            font-family: Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            text-align: center;
+            margin: 0 auto;
+            padding: 20px;
+            max-width: 800px;
+        }
+
+        .volver-inicio {
+            display: block;
+            margin: 20px auto 10px;
+            padding: 12px 24px;
+            font-size: 1em;
+            background-color: #4CAF50;
+            color: #fff;
+            text-align: center;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+        }
+
+        .volver-inicio:hover {
+            background-color: #45a049;
+        }
+
+        .header-img {
+            width: 200px;
+            height: auto;
+            margin: 20px auto;
+            position: relative;
+            animation: float 3s ease-in-out infinite, fadeInOut 3s linear infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .adivinanzas {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .adivinanza {
+            width: 180px;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .adivinanza:hover {
+            transform: scale(1.1);
+        }
+
+        .popup, .overlay {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .popup {
+            z-index: 10;
+            padding: 20px;
+            background-color: #ffefd5;
+            border-radius: 10px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .overlay {
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 5;
+        }
+
+        .popup h2 {
+            color: #FF4500;
+        }
+
+        .popup .texto-adivinanza {
+            font-size: 1.2em;
+        }
+
+        .popup img {
+            width: 150px;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        .popup .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #333;
+        }
+
+        /* Estilo para el marcador */
+        .score {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #FF4500;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <a href="index162.html" class="volver-inicio">Volver al Inicio</a>
+    <img src="chaguagua.png" alt="Chaguagua" class="header-img">
+
+    <div class="container">
+        <h2 class="score">Puntos: <span id="score">0</span></h2>
+
+        <section id="adivinanzas" class="adivinanzas">
+            <div class="adivinanza" onclick="mostrarPopup('Soy redonda y amarilla, en el cielo me ves brillar, cuando me oculto, ¡la noche llega sin cesar!', 'sol3.png', 'sol')">
+                <h2>Adivinanza 1</h2>
+            </div>
+            <div class="adivinanza" onclick="mostrarPopup('No tengo cuerpo, pero puedo contener. Si me llenas, menos peso tienes. ¿Qué soy?', 'agujero.png', 'agujero')">
+                <h2>Adivinanza 2</h2>
+            </div>
+            <div class="adivinanza" onclick="mostrarPopup('Crezco cada año, pero nunca disminuyo. ¿Qué soy?', 'edad.png', 'edad')">
+                <h2>Adivinanza 3</h2>
+            </div>
+            <div class="adivinanza" onclick="mostrarPopup('Aunque tengo dientes, no puedo comer, uso mi sonido para hacerte correr. ¿Qué soy?', 'campana.png', 'campana')">
+                <h2>Adivinanza 4</h2>
+            </div>
+        </section>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="cerrarPopup()"></div>
+    <div class="popup" id="popup">
+        <span class="close-btn" onclick="cerrarPopup()">&times;</span>
+        <h2>Chaguagua dice, ¿puedes adivinar?</h2>
+        <p class="texto-adivinanza" id="popup-texto"></p>
+        <img src="" alt="Imagen de la adivinanza" id="popup-imagen">
+        <input type="text" id="respuestaInput" placeholder="Escribe tu respuesta aquí">
+        <button onclick="verificarRespuesta()">Enviar Respuesta</button>
+    </div>
+
+    <script>
+        let score = 0;
+        let respuestaCorrecta = "";
+
+        function mostrarPopup(texto, imagenSrc, respuesta) {
+            document.getElementById("popup-texto").textContent = texto;
+            document.getElementById("popup-imagen").src = imagenSrc;
+            respuestaCorrecta = respuesta.toLowerCase();
+            document.getElementById("popup").style.display = "block";
+            document.getElementById("overlay").style.display = "block";
+        }
+
+        function cerrarPopup() {
+            document.getElementById("popup").style.display = "none";
+            document.getElementById("overlay").style.display = "none";
+            document.getElementById("respuestaInput").value = "";
+        }
+
+        function verificarRespuesta() {
+            const respuestaUsuario = document.getElementById("respuestaInput").value.toLowerCase();
+            if (respuestaUsuario === respuestaCorrecta) {
+                score += 2;
+                document.getElementById("score").textContent = score;
+                alert("¡Respuesta correcta!");
+            } else {
+                alert("Respuesta incorrecta. Inténtalo de nuevo.");
+            }
+            cerrarPopup();
+        }
+    </script>
+</body>
+</html>
